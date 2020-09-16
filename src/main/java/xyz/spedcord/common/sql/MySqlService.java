@@ -37,6 +37,7 @@ public class MySqlService {
         dataSource.setPassword(pass);
         dataSource.setDatabaseName(db);
         dataSource.setPort(port);
+        dataSource.setServerTimezone("UTC");
 
         connection = dataSource.getConnection();
     }
