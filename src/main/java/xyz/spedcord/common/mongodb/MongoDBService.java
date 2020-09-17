@@ -9,21 +9,25 @@ import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.codecs.pojo.PropertyCodecProvider;
+
+import static org.bson.codecs.pojo.Conventions.DEFAULT_CONVENTIONS;
 
 public class MongoDBService {
 
     private final MongoClient mongoClient;
     private final MongoDatabase database;
 
-    public MongoDBService(final String host, final int port, final String database, Class<?>... pojoClasses) {
+    public MongoDBService(final String host, final int port, final String database, PropertyCodecProvider... customProvider) {
         final CodecRegistry pojoCodecRegistry = CodecRegistries.fromRegistries(
                 MongoClientSettings.getDefaultCodecRegistry(),
-                CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).register(pojoClasses).build())
+                CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true)
+                        .register(customProvider).conventions(DEFAULT_CONVENTIONS).build())
         );
 
         MongoClientSettings settings = MongoClientSettings.builder()
                 .codecRegistry(pojoCodecRegistry)
-                .applyConnectionString(new ConnectionString("mongodb://"+host+":"+port))
+                .applyConnectionString(new ConnectionString("mongodb://" + host + ":" + port))
                 .uuidRepresentation(UuidRepresentation.STANDARD)
                 .build();
         this.mongoClient = MongoClients.create(settings);
